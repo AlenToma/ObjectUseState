@@ -1,5 +1,7 @@
 {
   "name": "@alentoma/useState",
   "version": "1.0.0",
-  "private": false
+  "description": "Alternative to react.UseState where you could use and object with properties.",
+  "main": "index.ts",
+  "homepage": "https://github.com/AlenToma/ObjectUseState"
 }
