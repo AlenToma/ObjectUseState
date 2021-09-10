@@ -1,7 +1,14 @@
 {
-  "name": "@alentoma/useState",
+  "name": "@alentoma/usestate",
   "version": "1.0.0",
   "description": "Alternative to react.UseState where you could use and object with properties.",
   "main": "index.ts",
-  "homepage": "https://github.com/AlenToma/ObjectUseState"
+  "homepage": "https://github.com/AlenToma/ObjectUseState",
+  "author": "Alen Toma <alen.toma@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "useState",
+    "objectUsestate"
+  ]
 }

@@ -1,9 +1,12 @@
 # Getting Started
 
-`npm install @alentoma/useState`
+`npm install @alentoma/usestate`
 
 ```js
-const item = objectUseState({
+import useState from '@alentoma/usestate'
+
+
+const item = useState({
     counter: 0,
     counter2: 0,
     text: "",
