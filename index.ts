@@ -1,5 +1,28 @@
 import { useState } from 'react';
 
+const wait = (time: number) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(true);
+    }, time);
+  });
+}
+
+const set = async (value: any, keyValue: any, key: string, setValue: Function, parent: any) => {
+  while (parent.wait)
+    await wait(200);
+  try {
+    parent.wait = true;
+
+    if (value != keyValue) await setValue(value);
+    parent.wait = false;
+  } catch (error) {
+    console.log(error);
+    parent.wait = false;
+    throw error;
+  }
+}
+
 const assign = (item: any, assignTo: any) => {
   var tItem = item as any;
   Object.keys(item).forEach((key) => {
@@ -19,14 +42,7 @@ const assign = (item: any, assignTo: any) => {
           return keyValue;
         },
         set(value) {
-          if (
-            value &&
-            typeof value === 'object' &&
-            value !== null &&
-            !Array.isArray(value)
-          )
-            throw 'Cant set an object';
-          else if (value != keyValue) setValue(value);
+          set(value, keyValue, key, setValue, assignTo);
         },
       });
     }
