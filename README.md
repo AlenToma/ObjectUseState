@@ -19,6 +19,15 @@ const item = useState({
     console.log(item);
   }, [item.counter]);
   
+
+  const resetItem=()=> {
+    item.setValue({
+      counter: 0,
+      counter2: 0,
+      text: "hahaha",
+      item: { ItemCounter: 0 },
+    });
+  }
   
   return (<Text onPress={()=> item.counter+=1}> {item.counter} </Text>)
 ```
