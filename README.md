@@ -38,7 +38,7 @@ const state = useState({
   return (<Text onPress={()=> state.counter+=1}> {state.counter} </Text>)
 ```
 
-## useState contructior 
+## useState constructor 
 
 ```js
 * Item: T // assiged object
