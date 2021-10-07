@@ -2,32 +2,35 @@ import { useState } from 'react';
 
 const addToWait = async <T>(
   value: any,
-  keyValue: any,
-  key: string,
   setValue: Function,
   parent: UseState<T>
 ) => {
-  parent.watingList.push(
-    async () => await set(value, keyValue, key, setValue, parent)
-  );
-  if (parent.isWorking) return;
-  parent.isWorking = true;
-  while (parent.watingList.length > 0) {
-    await parent.watingList[0]();
+
+  if (parent.awaitAll) {
+    parent.watingList.push(
+      async () => await set(value, setValue, parent)
+    );
+    if (parent.isWorking) return;
+    parent.isWorking = true;
+    while (parent.watingList.length > 0) {
+      await parent.watingList[0]();
+    }
+    parent.isWorking = false;
   }
-  parent.isWorking = false;
+  else await set(value, setValue, parent);
+
 };
 
 const set = async <T>(
   value: any,
-  keyValue: any,
-  key: string,
   setValue: Function,
   parent: UseState<T>
 ) => {
   try {
     await setValue(value);
-    parent.watingList.shift();
+    if (parent.awaitAll) {
+      parent.watingList.shift();
+    }
   } catch (error) {
     console.log(error);
     parent.watingList.shift();
@@ -49,7 +52,8 @@ const assign = <T>(item: any, assignTo: UseState<T>) => {
 
       thisAny[key] = new UseState(
         tItem[key],
-        assignTo.hierarkiUseState
+        false,
+        assignTo.awaitAll
       );
     } else {
       const [keyValue, setValue] = useState(tItem[key]);
@@ -59,7 +63,7 @@ const assign = <T>(item: any, assignTo: UseState<T>) => {
           return keyValue;
         },
         set(value) {
-          return addToWait<T>(value, keyValue, key, setValue, assignTo);
+          return addToWait<T>(value, setValue, assignTo);
         },
       });
     }
@@ -70,13 +74,16 @@ class UseState<T> {
   watingList: any[];
   isWorking: boolean;
   hierarkiUseState: boolean;
+  awaitAll: boolean
   constructor(
     item: T,
     hierarkiUseState?: boolean,
+    awaitAll?: boolean
   ) {
     this.watingList = [];
     this.isWorking = false;
     this.hierarkiUseState = hierarkiUseState ?? true;
+    this.awaitAll = awaitAll ?? true;
     assign(item, this);
   }
 
@@ -101,8 +108,9 @@ class UseState<T> {
 export default <T>(
   item: T,
   hierarkiUseState?: boolean,
+  awaitAll?: boolean
 ) => {
-  const state = new UseState<T>(item, hierarkiUseState) as
+  const state = new UseState<T>(item, hierarkiUseState, awaitAll) as
     | T
     | UseState<T>;
   return state as T;
