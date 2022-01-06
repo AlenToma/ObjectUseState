@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState as makeState } from 'react';
 
 const addToWait = async <T>(
   value: any,
   setValue: Function,
-  parent: UseState<T>
+  parent: MakeState<T>
 ) => {
 
   if (parent.awaitAll) {
@@ -24,7 +24,7 @@ const addToWait = async <T>(
 const set = async <T>(
   value: any,
   setValue: Function,
-  parent: UseState<T>
+  parent: MakeState<T>
 ) => {
   try {
     await setValue(value);
@@ -38,7 +38,7 @@ const set = async <T>(
   }
 };
 
-const assign = <T>(item: any, assignTo: UseState<T>) => {
+const assign = <T>(item: any, assignTo: MakeState<T>) => {
   var tItem = item as any;
   Object.keys(item).forEach((key) => {
     const thisAny = assignTo as any;
@@ -50,13 +50,13 @@ const assign = <T>(item: any, assignTo: UseState<T>) => {
       !Array.isArray(tItem[key])
     ) {
 
-      thisAny[key] = new UseState(
+      thisAny[key] = new MakeState(
         tItem[key],
         false,
         assignTo.awaitAll
       );
     } else {
-      const [keyValue, setValue] = useState(tItem[key]);
+      const [keyValue, setValue] = makeState(tItem[key]);
       thisAny[key] = keyValue;
       Object.defineProperty(thisAny, key, {
         get() {
@@ -70,7 +70,7 @@ const assign = <T>(item: any, assignTo: UseState<T>) => {
   });
 };
 
-class UseState<T> {
+class MakeState<T> {
   watingList: any[];
   isWorking: boolean;
   hierarkiUseState: boolean;
@@ -110,8 +110,8 @@ export default <T>(
   hierarkiUseState?: boolean,
   awaitAll?: boolean
 ) => {
-  const state = new UseState<T>(item, hierarkiUseState, awaitAll) as
+  const state = new MakeState<T>(item, hierarkiUseState, awaitAll) as
     | T
-    | UseState<T>;
+    | MakeState<T>;
   return state as T;
 };
