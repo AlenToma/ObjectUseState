@@ -70,7 +70,11 @@ const assign = <T>(item: any, assignTo: MakeState<T>) => {
   });
 };
 
-class MakeState<T> {
+export interface IMakeState<T extends {}>{
+  setValue: (item: T) => void;
+}
+
+class MakeState<T extends {}> implements IMakeState<T> {
   watingList: any[];
   isWorking: boolean;
   hierarkiUseState: boolean;
@@ -105,13 +109,9 @@ class MakeState<T> {
   };
 }
 
-export default <T>(
-  item: T,
-  hierarkiUseState?: boolean,
-  awaitAll?: boolean
-) => {
-  const state = new MakeState<T>(item, hierarkiUseState, awaitAll) as
-    | T
-    | MakeState<T>;
-  return state as T;
+
+
+export default <T extends {}>(item: T, hierarkiUseState?: boolean, awaitAll?: boolean) => {
+  const state = new MakeState<T>(item, hierarkiUseState, awaitAll) as any;
+  return state as (T & IMakeState<T>);
 };
