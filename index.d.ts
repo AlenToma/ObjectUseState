@@ -4,5 +4,5 @@ export interface ObjectContext<T extends {}>{
   readonly __toJson: ()=> string;
  }
  
- declare const CreateContext: <T>(item: T) => ObjectContext<T> & T;
+ declare const CreateContext: <T>(item: T, hierarkiTree?: boolean) => ObjectContext<T> & T;
  export default CreateContext;

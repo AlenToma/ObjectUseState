@@ -1,6 +1,6 @@
 import * as React from 'react';
 class StateContext {
-  constructor(item, trigger) {
+  constructor(item, trigger, hierarkiTree) {
     let keys = Object.keys(item);
     const prototype = Object.getPrototypeOf(item);
     if (prototype !== undefined && prototype != null) {
@@ -10,7 +10,7 @@ class StateContext {
       if (key == 'constructor') continue;
       let val = item[key];
       if (
-        typeof val === 'object' &&
+        hierarkiTree !== false && typeof val === 'object' &&
         !Array.isArray(val) &&
         val !== undefined &&
         val !== null &&
@@ -40,7 +40,7 @@ class StateContext {
   }
 }
 
-const CreateContext = (item) => {
+const CreateContext = (item, hierarkiTree) => {
   var sItem = React.useRef();
   const timer = React.useRef();
   var trigger = undefined;
@@ -68,7 +68,7 @@ const CreateContext = (item) => {
       timer.current = setTimeout(() => {
         trigger(getItem(v));
       }, 10);
-    });
+    }, hierarkiTree);
 
     return sItem.current;
   };

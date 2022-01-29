@@ -59,6 +59,7 @@ const state = objectUseState({
 | ParameterName | DefaulValue | Description |
 | :---: | :---: | :---: |
 | Item | T[Generic] | assiged object for useState |
+| hierarkiTree | true | Create trigger for all object tree, eg itemCounter for the above example |
 
 ## Properties
 | propertyName | DefaulValue | Description |
