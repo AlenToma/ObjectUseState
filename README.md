@@ -59,7 +59,6 @@ const state = objectUseState({
 | ParameterName | DefaulValue | Description |
 | :---: | :---: | :---: |
 | Item | T[Generic] | assiged object for useState |
-| __isInitialized | boolean(readonly) | this is a value that is set after the context has been Initialized  |
 
 ## Properties
 | propertyName | DefaulValue | Description |
