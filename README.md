@@ -17,22 +17,24 @@ const state = objectUseState({
     items:[]
   });
   
-  
-    React.useEffect(() => {
-    console.log('counter is Changed');
+  React.useEffect(() => {
+    if (!state.__isInitialized) return;
+    console.log('counter is Changed', state.__isInitialized);
   }, [state.counter]);
-  
-   React.useEffect(() => {
-    console.log('itemCounter is Changed');
+
+  React.useEffect(() => {
+    if (!state.__isInitialized) return;
+    console.log('itemCounter is Changed', state.__isInitialized);
   }, [state.item.itemCounter]);
-  
-     React.useEffect(() => {
-    console.log('items is Changed');
+
+  React.useEffect(() => {
+    if (!state.__isInitialized) return;
+    console.log('items is Changed', state.__isInitialized);
   }, [state.items]);
   
   // reset only counter and item
   const resetItem=()=> {
-   (state as any).setValue({
+   state.setValue({
       counter: 0,
       item: { itemCounter: 0 },
     });
@@ -52,12 +54,10 @@ const state = objectUseState({
 | ParameterName | DefaulValue | Description |
 | :---: | :---: | :---: |
 | Item | T[Generic] | assiged object for useState |
-| hierarkiUseState | true |this will be able to tell to create useState for children objects like the above example [item.ItemCounter] |
-
+| __isInitialized | boolean(readonly) | this is a value that is set after the context has been Initialized  |
 ## Limitations
 
 * accept only objects and not arrays for the useState.
-* hierarkiUseState only apply for objects and not array.
 
 ### example 
 
