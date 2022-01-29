@@ -36,7 +36,7 @@ const state = objectUseState({
   
   // reset only counter and item
   const resetItem=()=> {
-   state.setValue({
+   state.__setValue({
       counter: 0,
       item: { itemCounter: 0 },
     });
@@ -60,6 +60,17 @@ const state = objectUseState({
 | :---: | :---: | :---: |
 | Item | T[Generic] | assiged object for useState |
 | __isInitialized | boolean(readonly) | this is a value that is set after the context has been Initialized  |
+
+## Properties
+| propertyName | DefaulValue | Description |
+| :---: | :---: | :---: |
+| __isInitialized | boolean(readonly) false | this is a value that is set after the context has been Initialized  |
+## Methods
+| methodName  | Description |
+| :---: | :---: |
+| __setValue | Assign Object as Value  |
+| __toJson | A Clean json string value without the additional properties added from the library  |
+
 ## Limitations
 
 * accept only objects and not arrays for the useState.

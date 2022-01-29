@@ -4,12 +4,10 @@ class StateContext {
     let keys = Object.keys(item);
     const prototype = Object.getPrototypeOf(item);
     if (prototype !== undefined && prototype != null) {
-      keys = [...keys,
-        ...Object.getOwnPropertyNames(prototype)];
+      keys = [...keys, ...Object.getOwnPropertyNames(prototype)];
     }
     for (let key of keys) {
-      if (key == "constructor")
-        continue;
+      if (key == 'constructor') continue;
       let val = item[key];
       if (
         typeof val === 'object' &&
@@ -45,9 +43,26 @@ class StateContext {
 const CreateContext = (item) => {
   var sItem = React.useRef();
   const timer = React.useRef();
-  let trigger = undefined;
-  if (item.__isInitialized === undefined) item.__isInitialized = false; 
+  var trigger = undefined;
   const getItem = (tItem) => {
+    if (tItem.__isInitialized === undefined) tItem.__isInitialized = false;
+
+    if (tItem.__setValue === undefined)
+      tItem.__setValue = (v) => {
+        trigger(getItem({ ...tItem, ...v }));
+      };
+
+    if (tItem.__toJson === undefined)
+      tItem.__toJson = (v) => {
+        {
+          var jsonItem = { ...tItem };
+          delete jsonItem.__setValue;
+          delete jsonItem.__toJson;
+          delete jsonItem.__isInitialized;
+          return JSON.stringify(jsonItem);
+        }
+      };
+
     sItem.current = new StateContext(tItem, (v) => {
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
@@ -55,25 +70,13 @@ const CreateContext = (item) => {
       }, 10);
     });
 
-    if (sItem.current.__isInitialized === undefined)
-      sItem.current.__isInitialized = false;
-
-    if (sItem.current.setValue === undefined)
-      sItem.current.setValue = (v) => {
-      trigger(getItem({
-        ...tItem, ...v
-      }));
-    };
     return sItem.current;
   };
-  const [tItem,
-    setTItem] = React.useState(getItem(item));
-    
-    trigger = setTItem;
+  const [tItem, setTItem] = React.useState(getItem(item));
+  trigger = setTItem;
   React.useEffect(() => {
     setTimeout(() => (tItem.__isInitialized = true), 100);
-
-    return ()=> tItem.__isInitialized = false;
+    return () => (tItem.__isInitialized = false);
   }, []);
   return tItem;
 };
