@@ -4,10 +4,11 @@ class StateContext {
     let keys = Object.keys(item);
     const prototype = Object.getPrototypeOf(item);
     if (prototype !== undefined && prototype != null) {
-      keys = [...keys, ...Object.getOwnPropertyNames(prototype)];
+      const ignoreKyes = Object.getOwnPropertyNames(Object.prototype);
+      keys = [...keys, ...Object.getOwnPropertyNames(prototype)].filter(x => !ignoreKyes.includes(x));
     }
+
     for (let key of keys) {
-      if (key == 'constructor') continue;
       let val = item[key];
       if (
         hierarkiTree !== false && typeof val === 'object' &&
@@ -16,20 +17,20 @@ class StateContext {
         val !== null &&
         typeof val !== 'string'
       ) {
-        item[key] = val = new StateContext(val, () => trigger(item));
+        item[key] = val = new StateContext(val, () => trigger(item), hierarkiTree);
       }
 
       Object.defineProperty(this, key, {
         get: () => item[key],
         set: (value) => {
           if (
-            typeof val === 'object' &&
+            hierarkiTree !== false && typeof val === 'object' &&
             !Array.isArray(val) &&
             val !== undefined &&
             val !== null &&
             typeof val !== 'string'
           ) {
-            value = new StateContext(value, () => trigger(item));
+            value = new StateContext(value, () => trigger(item), hierarkiTree);
           }
           item[key] = value;
           if (key !== '__isInitialized') trigger(item);
@@ -43,19 +44,19 @@ class StateContext {
 const CreateContext = (item, hierarkiTree) => {
   var sItem = React.useRef();
   const timer = React.useRef();
-  var trigger = undefined;
-  const getItem = (tItem) => {
-    if (tItem.__isInitialized === undefined) tItem.__isInitialized = false;
+  var trigger = React.useRef();
+  const getItem = (tmItem) => {
+    if (tmItem.__isInitialized === undefined) tmItem.__isInitialized = false;
 
-    if (tItem.__setValue === undefined)
-      tItem.__setValue = (v) => {
-        trigger(getItem({ ...tItem, ...v }));
+    if (tmItem.__setValue === undefined)
+      tmItem.__setValue = (v) => {
+        trigger.current(getItem({ ...tmItem, ...v }));
       };
 
-    if (tItem.__toJson === undefined)
-      tItem.__toJson = (v) => {
+    if (tmItem.__toJson === undefined)
+      tmItem.__toJson = (v) => {
         {
-          var jsonItem = { ...tItem };
+          var jsonItem = { ...tmItem };
           delete jsonItem.__setValue;
           delete jsonItem.__toJson;
           delete jsonItem.__isInitialized;
@@ -63,17 +64,17 @@ const CreateContext = (item, hierarkiTree) => {
         }
       };
 
-    sItem.current = new StateContext(tItem, (v) => {
+    sItem.current = new StateContext(tmItem, (v) => {
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
-        trigger(getItem(v));
+        trigger.current(getItem(v));
       }, 10);
     }, hierarkiTree);
 
     return sItem.current;
   };
   const [tItem, setTItem] = React.useState(getItem(item));
-  trigger = setTItem;
+  trigger.current = setTItem;
   React.useEffect(() => {
     setTimeout(() => (tItem.__isInitialized = true), 100);
     return () => (tItem.__isInitialized = false);
