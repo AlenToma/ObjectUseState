@@ -8,6 +8,8 @@ Well with this library you can use an object as a `usestate` and it will be able
 
 This Library also make thing faster when you have to many operation and changes to the states as it create a waiting list behind the code and make sure each changes is applied before the next change to be trigger.
 
+The assign oepration is a sync operation, mening that you could already use the assigned data without waiting for useEffect to trigger.
+
 ```js
 import objectUseState from '@alentoma/usestate'
 
@@ -18,18 +20,18 @@ const state = objectUseState({
   });
   
   React.useEffect(() => {
-    if (!state.__isInitialized) return;
-    console.log('counter is Changed', state.__isInitialized);
+    if (!state.__isInitialized) return; // Optional
+    console.log('counter is Changed');
   }, [state.counter]);
 
   React.useEffect(() => {
-    if (!state.__isInitialized) return;
-    console.log('itemCounter is Changed', state.__isInitialized);
+    if (!state.__isInitialized) return; // Optional
+    console.log('itemCounter is Changed');
   }, [state.item.itemCounter]);
 
   React.useEffect(() => {
-    if (!state.__isInitialized) return;
-    console.log('items is Changed', state.__isInitialized);
+    if (!state.__isInitialized) return; // Optional
+    console.log('items is Changed');
   }, [state.items]);
   
   // reset only counter and item
@@ -42,7 +44,10 @@ const state = objectUseState({
   
   return (
   <>
-  <Text onPress={()=> state.counter++}> click to increate Counter {state.counter} </Text>
+  <Text onPress={()=> {
+    state.counter++
+    console.log(state.counter) // you will see here that counter has increased already eg is a sync operation.
+  }}> click to increate Counter {state.counter} </Text>
   <Text onPress={()=> state.item.itemCounter++}> click to increase ItemCounter {state.item.itemCounter} </Text>
   <Text onPress={()=> state.items = [...state.items, "02"]}> click to increase items {state.items.length} </Text>
   </>

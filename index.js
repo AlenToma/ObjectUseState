@@ -1,7 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
+import * as React from 'react';
 class StateContext {
   constructor(item, trigger) {
-    for (let key in item) {
+    let keys = Object.keys(item);
+    const prototype = Object.getPrototypeOf(item);
+    if (prototype !== undefined && prototype != null) {
+      keys = [...keys,
+        ...Object.getOwnPropertyNames(prototype)];
+    }
+    for (let key of keys) {
+      if (key == "constructor")
+        continue;
       let val = item[key];
       if (
         typeof val === 'object' &&
@@ -34,16 +42,16 @@ class StateContext {
   }
 }
 
-const CreateContext =(item) => {
-  var sItem = useRef();
-  const timer = useRef();
-
-  if (item.__isInitialized === undefined) item.__isInitialized = false;
+const CreateContext = (item) => {
+  var sItem = React.useRef();
+  const timer = React.useRef();
+  let trigger = undefined;
+  if (item.__isInitialized === undefined) item.__isInitialized = false; 
   const getItem = (tItem) => {
     sItem.current = new StateContext(tItem, (v) => {
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
-        setTItem(getItem(v));
+        trigger(getItem(v));
       }, 10);
     });
 
@@ -52,12 +60,17 @@ const CreateContext =(item) => {
 
     if (sItem.current.setValue === undefined)
       sItem.current.setValue = (v) => {
-        setTItem(getItem({ ...tItem, ...v }));
-      };
+      trigger(getItem({
+        ...tItem, ...v
+      }));
+    };
     return sItem.current;
   };
-  const [tItem, setTItem] = useState(getItem(item));
-  useEffect(() => {
+  const [tItem,
+    setTItem] = React.useState(getItem(item));
+    
+    trigger = setTItem;
+  React.useEffect(() => {
     setTimeout(() => (tItem.__isInitialized = true), 100);
 
     return ()=> tItem.__isInitialized = false;
@@ -65,4 +78,4 @@ const CreateContext =(item) => {
   return tItem;
 };
 
-module.exports =CreateContext;  
+module.exports = CreateContext;
