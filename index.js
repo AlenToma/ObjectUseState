@@ -52,7 +52,6 @@ const CreateContext = (item, hierarkiTree) => {
         trigger.current(getItem({ ...tmItem, ...v }));
       };
 
-    if (tmItem.__toJson === undefined)
       tmItem.__toJson = (v) => {
         {
           var jsonItem = { ...tmItem };
