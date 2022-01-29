@@ -48,7 +48,6 @@ const CreateContext = (item, hierarkiTree) => {
   const getItem = (tmItem) => {
     if (tmItem.__isInitialized === undefined) tmItem.__isInitialized = false;
 
-    if (tmItem.__setValue === undefined)
       tmItem.__setValue = (v) => {
         trigger.current(getItem({ ...tmItem, ...v }));
       };
