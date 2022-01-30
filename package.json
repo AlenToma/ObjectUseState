@@ -1,6 +1,6 @@
 {
   "name": "@alentoma/usestate",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "description": "Alternative to react.UseState where you could use and object with properties.",
   "main": "index.js",
   "homepage": "https://github.com/AlenToma/ObjectUseState",
@@ -11,7 +11,5 @@
     "useState",
     "objectUsestate"
   ],
-  "dependencies": {
-    "react": "*"
-  }
+  "dependencies": {}
 }
