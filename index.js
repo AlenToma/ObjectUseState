@@ -10,6 +10,7 @@ class StateContext {
           (x) => !ignoreKyes.includes(x)
         );
       }
+
       for (let key of keys) {
         let val = item[key];
         if (
@@ -34,11 +35,7 @@ class StateContext {
           get: () => item[key],
           set: (value) => {
             if (
-              hierarkiTree !== false &&
-              (ignoreObjectKeyNames == undefined ||
-                !ignoreObjectKeyNames.find((x) => x === key)) &&
-              typeof value === 'object' &&
-              !Array.isArray(value) &&
+              hierarkiTree !== false &&  (ignoreObjectKeyNames == undefined || !ignoreObjectKeyNames.find((x) => x === key)) && typeof value === 'object' && !Array.isArray(value) &&
               value !== undefined &&
               value !== null &&
               typeof value !== 'string'
@@ -51,7 +48,9 @@ class StateContext {
               );
             }
             item[key] = value;
-            if (key !== '__isInitialized') trigger(item);
+            if (key !== '__isInitialized') {
+              trigger(item);
+            }
           },
           enumerable: true,
         });
@@ -63,10 +62,11 @@ class StateContext {
   }
 }
 
-const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames) => {
+const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames, keyTimeout) => {
   var sItem = React.useRef();
   const timer = React.useRef();
   var trigger = React.useRef();
+  keyTimeout = keyTimeout !== undefined ? keyTimeout : 100;
   const getItem = (tmItem) => {
     if (tmItem.__isInitialized === undefined) tmItem.__isInitialized = false;
 
@@ -95,7 +95,7 @@ const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames) => {
         clearTimeout(timer.current);
         timer.current = setTimeout(() => {
           trigger.current(getItem(v));
-        }, 10);
+        }, keyTimeout);
       },
       hierarkiTree,
       ignoreObjectKeyNames
@@ -104,13 +104,14 @@ const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames) => {
     return sItem.current;
   };
 
-  const startItem = sItem.current !== undefined ? sItem.current : getItem(item);
-  const [tItem, setTItem] = React.useState(startItem);
+  sItem.current = sItem.current !== undefined ? sItem.current : getItem(item);
+  const [tItem, setTItem] = React.useState(sItem.current);
   trigger.current = setTItem;
   React.useEffect(() => {
     setTimeout(() => (tItem.__isInitialized = true), 100);
     return () => {
       tItem.__isInitialized = false;
+      sItem.current = undefined;
     };
   }, []);
   return tItem;

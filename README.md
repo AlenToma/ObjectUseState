@@ -60,8 +60,8 @@ const state = objectUseState({
 | :---: | :---: | :---: |
 | Item | T[Generic] | assiged object for useState |
 | hierarkiTree | true | Create trigger for all object tree, eg itemCounter for the above example |
-| sessionKey | undefined | This is really importend when you have a single big content, like for example contextProvider in APP, so it will not recreate th tree everytime  |
 | ignoreObjectKeyNames | undefined | The library will trigger change on propertyChange and this will rerender the component , use this if you want to execlude some object from this eg ["item"] for the above example. This is ofter used when you have a circular references problem  |
+| keyTimeout | 100 ms | trigger setState after 100ms  |
 
 ## Properties
 | propertyName | DefaulValue | Description |

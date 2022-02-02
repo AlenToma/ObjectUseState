@@ -5,5 +5,5 @@ export interface ObjectContext<T extends {}>{
   readonly __cleanItem: ()=> string;
  }
  
- declare const CreateContext: <T>(item: T, hierarkiTree?: boolean, ignoreObjectKeyNames?:string[]) => ObjectContext<T> & T;
+ declare const CreateContext: <T>(item: T, hierarkiTree?: boolean, ignoreObjectKeyNames?:string[], keyTimeout?: number) => ObjectContext<T> & T;
  export default CreateContext;
