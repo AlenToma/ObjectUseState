@@ -66,7 +66,7 @@ const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames, keyTimeout) => 
   var sItem = React.useRef();
   const timer = React.useRef();
   var trigger = React.useRef();
-  keyTimeout = keyTimeout !== undefined ? keyTimeout : 100;
+  keyTimeout = keyTimeout !== undefined ? keyTimeout : 10;
   const getItem = (tmItem) => {
     if (tmItem.__isInitialized === undefined) tmItem.__isInitialized = false;
 
