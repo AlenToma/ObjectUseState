@@ -63,9 +63,10 @@ class StateContext {
 }
 
 const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames, keyTimeout) => {
-  var sItem = React.useRef();
+  const sItem = React.useRef();
   const timer = React.useRef();
-  var trigger = React.useRef();
+  const trigger = React.useRef();
+  const mountedTimeout = React.useRef();
   keyTimeout = keyTimeout !== undefined ? keyTimeout : 10;
   const getItem = (tmItem) => {
     if (tmItem.__isInitialized === undefined) tmItem.__isInitialized = false;
@@ -108,8 +109,10 @@ const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames, keyTimeout) => 
   const [tItem, setTItem] = React.useState(sItem.current);
   trigger.current = setTItem;
   React.useEffect(() => {
-    setTimeout(() => (tItem.__isInitialized = true), 100);
+    mountedTimeout.current = setTimeout(() => (tItem.__isInitialized = true), 100);
     return () => {
+      clearTimeout(mountedTimeout.current);
+      clearTimeout(timer.current);
       tItem.__isInitialized = false;
       sItem.current = undefined;
     };
