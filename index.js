@@ -1,21 +1,20 @@
 import * as React from 'react';
-const __ignoreKeys = ["__setValue","__toJson", "__cleanItem"]
+const __ignoreKeys = ['__setValue', '__toJson', '__cleanItem'];
 
 class StateContext {
-  
   constructor(item, trigger, hierarkiTree, ignoreObjectKeyNames) {
     try {
-      let keys = Object.keys(item).filter(x=> !__ignoreKeys.includes(x)); 
+      let keys = Object.keys(item).filter((x) => !__ignoreKeys.includes(x));
       const prototype = Object.getPrototypeOf(item);
-    
+
       if (prototype !== undefined && prototype != null) {
         const ignoreKyes = Object.getOwnPropertyNames(Object.prototype);
         keys = [...keys, ...Object.getOwnPropertyNames(prototype)].filter(
           (x) => !ignoreKyes.includes(x)
         );
-      } 
+      }
 
-      for (let key of keys) { 
+      for (let key of keys) {
         let val = item[key];
         if (
           hierarkiTree !== false &&
@@ -27,31 +26,37 @@ class StateContext {
           val !== null &&
           typeof val !== 'string'
         ) {
-          item[key] = val = new StateContext(
+          val = new StateContext(
             val,
             () => trigger(item),
             hierarkiTree,
             ignoreObjectKeyNames
           );
-        }   
+        }
+
         Object.defineProperty(this, key, {
-          get: () => item[key],
+          get: () => val,
           set: (value) => {
-            
+            let oValue = value;
             if (
-              hierarkiTree !== false &&  (ignoreObjectKeyNames == undefined || !ignoreObjectKeyNames.find((x) => x === key)) && typeof value === 'object' && !Array.isArray(value) &&
+              hierarkiTree !== false &&
+              (ignoreObjectKeyNames == undefined ||
+                !ignoreObjectKeyNames.find((x) => x === key)) &&
+              typeof value === 'object' &&
+              !Array.isArray(value) &&
               value !== undefined &&
               value !== null &&
               typeof value !== 'string'
             ) {
               value = new StateContext(
-                value,
+                oValue,
                 () => trigger(item),
                 hierarkiTree,
                 ignoreObjectKeyNames
               );
             }
-            item[key] = value;
+            item[key] = oValue;
+            val = value;
             if (key !== '__isInitialized') {
               trigger(item);
             }
@@ -69,36 +74,40 @@ class StateContext {
 const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames) => {
   const sItem = React.useRef();
   const trigger = React.useRef();
+  const timer = React.useRef();
+
   const getItem = (tmItem) => {
     if (tmItem.__isInitialized === undefined) tmItem.__isInitialized = false;
+    sItem.current = new StateContext(
+      tmItem,
+      (v) => {
+        clearTimeout(timer.current);
+        timer.current = setTimeout(() => {
+          trigger.current(getItem(v));
+        }, 0);
+      },
+      hierarkiTree,
+      ignoreObjectKeyNames
+    );
 
-    tmItem.__setValue = (v) => {
+    sItem.current.__setValue = (v) => {
       trigger.current(getItem({ ...tmItem, ...v }));
     };
 
-    tmItem.__toJson = (v) => {
+    sItem.current.__toJson = (v) => {
       {
         return JSON.stringify(tmItem.__cleanItem());
       }
     };
 
-    tmItem.__cleanItem = () => {
-      var jsonItem = { ...tmItem };
+    sItem.current.__cleanItem = () => {
+      let jsonItem = { ...tmItem };
       delete jsonItem.__setValue;
       delete jsonItem.__toJson;
       delete jsonItem.__isInitialized;
       delete jsonItem.__cleanItem;
       return jsonItem;
     };
-
-    sItem.current = new StateContext( 
-      tmItem,
-      (v) => {
-       trigger.current(getItem({...v}));  
-      },
-      hierarkiTree,
-      ignoreObjectKeyNames
-    );
 
     return sItem.current;
   };
@@ -107,10 +116,12 @@ const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames) => {
   const [tItem, setTItem] = React.useState(sItem.current);
   trigger.current = setTItem;
   React.useEffect(() => {
-   tItem.__isInitialized = true 
+    tItem.__isInitialized = true;
+
     return () => {
       tItem.__isInitialized = false;
       sItem.current = undefined;
+      clearTimeout(timer.current);
     };
   }, []);
   return tItem;
