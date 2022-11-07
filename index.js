@@ -96,12 +96,12 @@ const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames) => {
 
     sItem.current.__toJson = (v) => {
       {
-        return JSON.stringify(tmItem.__cleanItem());
+        return JSON.stringify(sItem.current.__cleanItem());
       }
     };
 
     sItem.current.__cleanItem = () => {
-      let jsonItem = { ...tmItem };
+      let jsonItem = { ...sItem.current };
       delete jsonItem.__setValue;
       delete jsonItem.__toJson;
       delete jsonItem.__isInitialized;
