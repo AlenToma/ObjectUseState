@@ -1,17 +1,21 @@
 import * as React from 'react';
+const __ignoreKeys = ["__setValue","__toJson", "__cleanItem"]
+
 class StateContext {
+  
   constructor(item, trigger, hierarkiTree, ignoreObjectKeyNames) {
     try {
-      let keys = Object.keys(item);
+      let keys = Object.keys(item).filter(x=> !__ignoreKeys.includes(x)); 
       const prototype = Object.getPrototypeOf(item);
+    
       if (prototype !== undefined && prototype != null) {
         const ignoreKyes = Object.getOwnPropertyNames(Object.prototype);
         keys = [...keys, ...Object.getOwnPropertyNames(prototype)].filter(
           (x) => !ignoreKyes.includes(x)
         );
-      }
+      } 
 
-      for (let key of keys) {
+      for (let key of keys) { 
         let val = item[key];
         if (
           hierarkiTree !== false &&
@@ -29,11 +33,11 @@ class StateContext {
             hierarkiTree,
             ignoreObjectKeyNames
           );
-        }
-
+        }   
         Object.defineProperty(this, key, {
           get: () => item[key],
           set: (value) => {
+            
             if (
               hierarkiTree !== false &&  (ignoreObjectKeyNames == undefined || !ignoreObjectKeyNames.find((x) => x === key)) && typeof value === 'object' && !Array.isArray(value) &&
               value !== undefined &&
@@ -62,12 +66,9 @@ class StateContext {
   }
 }
 
-const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames, keyTimeout) => {
+const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames) => {
   const sItem = React.useRef();
-  const timer = React.useRef();
   const trigger = React.useRef();
-  const mountedTimeout = React.useRef();
-  keyTimeout = keyTimeout !== undefined ? keyTimeout : 10;
   const getItem = (tmItem) => {
     if (tmItem.__isInitialized === undefined) tmItem.__isInitialized = false;
 
@@ -90,13 +91,10 @@ const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames, keyTimeout) => 
       return jsonItem;
     };
 
-    sItem.current = new StateContext(
+    sItem.current = new StateContext( 
       tmItem,
       (v) => {
-        clearTimeout(timer.current);
-        timer.current = setTimeout(() => {
-          trigger.current(getItem(v));
-        }, keyTimeout);
+       trigger.current(getItem({...v}));  
       },
       hierarkiTree,
       ignoreObjectKeyNames
@@ -109,10 +107,8 @@ const CreateContext = (item, hierarkiTree, ignoreObjectKeyNames, keyTimeout) => 
   const [tItem, setTItem] = React.useState(sItem.current);
   trigger.current = setTItem;
   React.useEffect(() => {
-    mountedTimeout.current = setTimeout(() => (tItem.__isInitialized = true), 100);
+   tItem.__isInitialized = true 
     return () => {
-      clearTimeout(mountedTimeout.current);
-      clearTimeout(timer.current);
       tItem.__isInitialized = false;
       sItem.current = undefined;
     };
